@@ -2,12 +2,27 @@
 
 echo Boot Strapping
 
-ios_project=$1
+ios_project_path=""
+
+while getopts i: opt; do
+	case $opt in
+		i)
+			ios_project_path=$OPTARG
+			echo $ios_project_path
+		;;
+	esac
+done
+
+
+ios_staging=PocoLib
+
+mkdir $ios_staging
 
 mkdir pocoTmp
 cd pocoTmp
 
 ios_openssl_directory=iOS_openssl
+ios_openssl_install_directory=$ios_staging/openssl
 
 echo "################################ iOS ssl START."
 
@@ -15,17 +30,23 @@ git clone https://github.com/x2on/OpenSSL-for-iPhone.git $ios_openssl_directory
 
 cd $ios_openssl_directory
 
-echo Building ssl for iOS
-./build-libssl.sh
+echo "Building ssl for iOS"
+#./build-libssl.sh
+
 cd ..
+
+mkdir ../$ios_openssl_install_directory
+cp -r $ios_openssl_directory/include/ ../$ios_openssl_install_directory/include
+cp -r $ios_openssl_directory/lib/ ../$ios_openssl_install_directory/lib
+
 
 echo "################################ iOS ssl DONE."
 
-echo Cloning Poco
+echo "Cloning Poco"
 
 
-poco_ios_install_directory=$ios_project/poco
-poco_prefix=$poco_ios_project$poco_ios_install_directory
+poco_ios_install_directory=$ios_staging/poco
+poco_prefix=$poco_ios_staging$poco_ios_install_directory
 poco_dir=poco
 poco_always_build=""
 poco_omit_list=Data/ODBC,Data/MySQL,Zip,PDF,MongoDB,CppParser,XML
@@ -36,7 +57,7 @@ cd $poco_dir
 
 ssl_path=`pwd`/../$ios_openssl_directory
 
-echo Building Poco for iOS architectures
+echo "Building Poco for iOS architectures"
 
 iphone_sdk_version_min=8.0 #should be taken from xcode project
 ios_configurations=(iPhone-clang-libc++ iPhoneSimulator-clang-libc++)
@@ -49,7 +70,7 @@ for ((i=0; i < ${#ios_configurations[@]}; i++))
 	do
 		configuration=${ios_configurations[$i]}
 		echo Configuring for $configuration
-		./configure --config=$configuration --no-samples --no-tests --omit=$poco_omit_list --include-path=$ssl_path/include --library-path=$ssl_path/lib --prefix=$poco_ios_install_directory
+		./configure --config=$configuration --no-samples --no-tests --omit=$poco_omit_list --include-path=$ssl_path/include --library-path=$ssl_path/lib --prefix=../../$poco_ios_install_directory
 
 		declare -a archs_array
 
@@ -67,13 +88,9 @@ for ((i=0; i < ${#ios_configurations[@]}; i++))
 	done
 
 make install
-rm -rf $poco_ios_install_directory/bin
-rm -rf $poco_ios_install_directory/lib
-
-#./configure --config=iPhoneSimulator-clang-libc++ --no-samples --no-tests --omit=$POCO_OMIT_LIST --include-path=$SSL_PATH/include --library-path=$SSL_PATH/lib 
-#--prefix=/Users/mattmcmurry/Development/pluralsightNative/pluralsightLearneriOS/PSShared/Poco/iOS
-# make install
-
+rm -rf ../../$poco_ios_install_directory/bin
+rm -rf ../../$poco_ios_install_directory/lib
+mkdir ../../$poco_ios_install_directory/lib
 cd lib
 
 ios_all_directory=iOSAll
@@ -82,46 +99,76 @@ cd $ios_all_directory
 
 lib_list=(libPocoCrypto.a libPocoData.a libPocoDataSQLite.a libPocoFoundation.a libPocoJSON.a libPocoNet.a libPocoNetSSL.a libPocoUtil.a libPocoXML.a)
 
-for i in "${lib_list[@]}"
+#config iOS/iPhonesimulator
+	#arch
+		#liblist
+
+for ((j=0; j < ${#ios_configurations[@]}; j++))
 	do
-		lipo_job="lipo -c"
+		libtool_job_prefix="libtool -static"
+		
+		declare -a archs_array
+		declare -a sub_path
 
-		for ((j=0; j < ${#ios_configurations[@]}; j++))
+		if [ $j = 0 ]; then
+			sub_path="../iPhoneOS"
+			archs_array=("${iphone[@]}")
+		else
+			sub_path="../iPhoneSimulator"
+			archs_array=("${ios_simulator[@]}")
+		fi
+
+		for k in "${archs_array[@]}"
 			do
-				configuration=${ios_configurations[$j]}
-				
-				declare -a archs_array
-				declare -a sub_path
-
-				if [ $j = 0 ]; then
-					sub_path="../iPhoneOS"
-					archs_array=("${iphone[@]}")
-				else
-					sub_path="../iPhoneSimulator"
-					archs_array=("${ios_simulator[@]}")
-				fi
-
-				for k in "${archs_array[@]}"
+				libtool_job=$libtool_job_prefix
+				for i in "${lib_list[@]}"
 					do
-						full_path="$sub_path/$k/$i"
-						lipo_job="$lipo_job $full_path"
+					
+						lib_path="${sub_path}/${k}/${i}"
+						libtool_job="${libtool_job} ${lib_path}"
+
 					done
+
+				libtool_job="${libtool_job} -o ${k}_libCombined.a"
+
+				$libtool_job
 			done
 
-		lipo_job="$lipo_job -o $i"
-		$lipo_job
 	done
 
-mkdir $poco_ios_install_directory/lib
+lipo_job="lipo -c"
+for ((j=0; j < ${#ios_configurations[@]}; j++))
+	do
+		declare -a archs_array
+		if [ $j = 0 ]; then
+			archs_array=("${iphone[@]}")
+		else
+			archs_array=("${ios_simulator[@]}")
+		fi
 
-cp * $poco_ios_install_directory/lib
+		for k in "${archs_array[@]}"
+			do
+				lipo_job="${lipo_job} ${k}_libCombined.a"
+			done
 
-#should I configure the project to integrate the libs?
+	done
 
-echo "Clean up."
+lipo_job="${lipo_job} -o libPoco.a"
+$lipo_job
 
-cd ..
-rm -rf pocoTmp
+cp libPoco.a ../../../../$poco_ios_install_directory/lib/libPoco.a
+
+cd ../../../../
+
+if [ "${ios_project_path}" != "" ]; then
+	echo "Integrating into iOS project: $ios_project_path"
+
+	pwd
+fi
+
+#echo "Clean up."
+
+#rm -rf pocoTmp
 
 #export NDK="/Users/mattmcmurry/Library/Android/android-ndk-r10d"
 
