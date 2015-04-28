@@ -1,13 +1,13 @@
 # pocobuilder
 
-This tool will build openssl and poco for iOS and place the libs for openssl and poco in a given project.
+This tool will build openssl and poco for iOS and Android and will place the libs for openssl and poco in PocoLib for iOS and PocoLibA for Android.
 
 Currently to run:
 sh pocoProjectetup.sh
 
-This will generate a PocoLib directory. The contents contain everything you need to use poco in you iOS app.
+This will generate a PocoLib and a PocoLibA directory. The contents contain everything you need to use poco in you iOS app.
 
-To use in your app copy the directory to your project space.
+To use in your ios app copy the directory to your project space.
 Add all the generated libs to you project.
 Add new Header Search Paths to locate the include directories found in PocoLib.
 
