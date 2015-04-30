@@ -262,15 +262,13 @@ cd ..
 
 project_dir="sharedsource"
 
-mkdir $project_dir
+mkdir -p $project_dir/$project_dir
 
 # cd $project_dir
 
 echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
 
-ruby_job="ruby configureXcodeProject.rb $project_name $ios_staging_name"
-echo $ruby_job
-
+ruby configureXcodeProject.rb $project_name $ios_staging_name
 
 
 #echo "Clean up."
