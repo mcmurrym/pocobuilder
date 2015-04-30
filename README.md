@@ -1,6 +1,6 @@
 # pocobuilder
 
-Requirements:
+Requirements: (this list is not currently validated by the script)
 
 Xcode
 NDK
