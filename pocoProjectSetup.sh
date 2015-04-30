@@ -2,6 +2,8 @@
 
 echo Boot Strapping
 
+project_name="SharedSource" 
+
 # ios_project_path=""
 
 # while getopts i: opt; do
@@ -13,10 +15,10 @@ echo Boot Strapping
 # 	esac
 # done
 
+ios_staging_name="iOSPocoLib"
+ios_staging=$project_name/$ios_staging_name
 
-ios_staging=PocoLib
-
-mkdir $ios_staging
+mkdir -p $ios_staging
 
 mkdir pocoTmp
 cd pocoTmp
@@ -170,9 +172,9 @@ cd ../../../../
 
 echo "Building Poco for Android architectures"
 
-android_staging=PocoLibA
+android_staging=$project_name/AndroidPocoLib
 
-mkdir $android_staging
+mkdir -p $android_staging
 
 cd pocoTmp
 
@@ -252,6 +254,24 @@ for j in "${android_archs[@]}"
 		find $arch_path -type f -name '*d.a' -delete
 		
 	done 
+
+
+echo "######## builds done! Integrating into iOS and Android Projects"
+
+cd ..
+
+project_dir="sharedsource"
+
+mkdir $project_dir
+
+# cd $project_dir
+
+echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
+
+ruby_job="ruby configureXcodeProject.rb $project_name $ios_staging_name"
+echo $ruby_job
+
+
 
 #echo "Clean up."
 
