@@ -20,7 +20,7 @@ poco_include_group = poco_group.new_group("include")
 poco_lib_group = poco_group.new_group("lib")
 
 #target
-app_target = proj.new_target(:static_library, project_name, :ios, "8.0")
+app_target = proj.new_target(:framework, project_name, :ios, "8.0")
 frameworks_build_phase = app_target.frameworks_build_phase
 
 #add search paths
