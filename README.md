@@ -4,9 +4,13 @@ Requirements: (this list is not currently validated by the script)
 
 Xcode
 NDK
+
 $NDK defined
+
 Ruby
+
 Ruby gem xcodeproj
+
 $PATH needs to include a path to: ... /Android/sdk/tools
 
 
