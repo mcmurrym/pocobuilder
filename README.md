@@ -1,30 +1,19 @@
 # pocobuilder
 
-Requirements: (this list is not currently validated by the script)
+### Summary
+pocobuilder is a bash script that downloads and compiles the (pocoproject.org) library and openssl library for iOS (Mac should be easy to add) and Android platforms. After compiling the libraries projects for each platform are generatated (currently only an Xcode project is generated). The projects link to the poco and openssl libraries and provide a common place for all your c/c++ code that will be consumed by all the platforms. In theory pocobuilder could be made to generate resources for iOS, Mac, Android, Linux, Windows (Phone and Desktop).
 
-Xcode
-NDK
+### Requirements: (this list is not currently validated by the script)
+* A Mac (haven't tested this anywhere else, the xcode project generation is done by a ruby gem so technically this could run on other OS's)
+* Xcode
+* NDK
+* $NDK defined
+* Ruby
+* Ruby gem xcodeproj
+* $PATH needs to include a path to: ... /Android/sdk/tools
 
-$NDK defined
+### Run script
+The build is not currently configurable.
+To run: run `sh pocoProjectSetup.sh` in the directory this repo was cloned or downloaded to.
 
-Ruby
-
-Ruby gem xcodeproj
-
-$PATH needs to include a path to: ... /Android/sdk/tools
-
-
-This tool will build openssl and poco for iOS and Android and will place the libs for openssl and poco in PocoLib for iOS and PocoLibA for Android.
-
-Currently to run:
-sh pocoProjectetup.sh
-
-This will generate a PocoLib and a PocoLibA directory. The contents contain everything you need to use poco in you iOS app and Android app: Libraries and headers.
-
-To use in your ios app copy the directory to your project space.
-Add all the generated libs to you project.
-Add new Header Search Paths to locate the include directories found in PocoLib.
-
-Also... I plan on making the instructions more clear and easier to follow.
-
-It does not currently integrate the libs into the project automatically. Stay tuned.
+*Notice:* The compilation of all the libraries on all the platforms my take an hour or more.
