@@ -1,5 +1,15 @@
 # pocobuilder
 
+Requirements:
+
+Xcode
+NDK
+$NDK defined
+Ruby
+Ruby gem xcodeproj
+$PATH needs to include a path to: ... /Android/sdk/tools
+
+
 This tool will build openssl and poco for iOS and Android and will place the libs for openssl and poco in PocoLib for iOS and PocoLibA for Android.
 
 Currently to run:
