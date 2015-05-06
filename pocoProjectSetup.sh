@@ -172,7 +172,9 @@ cd ../../../../
 
 echo "Building Poco for Android architectures"
 
-android_staging=$project_name/AndroidPocoLib
+android_lib_dir="AndroidPocoLib"
+
+android_staging=$project_name/$android_lib_dir
 
 mkdir -p $android_staging
 
@@ -269,6 +271,10 @@ mkdir -p $project_dir/$project_dir
 echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
 
 ruby configureXcodeProject.rb $project_name $ios_staging_name
+
+echo "Creating/Updating an Android Library project with the latest Poco and openssl libraries"
+
+ruby configureAndroidProject.rb $project_name $android_lib_dir
 
 
 #echo "Clean up."
