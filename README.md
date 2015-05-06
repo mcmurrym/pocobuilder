@@ -18,6 +18,6 @@ pocobuilder is a bash script that downloads and compiles the [Poco](http://pocop
 
 #### Options
 
-* **\-n [name]** By default the script will generate directories and projects with the name "SharedSource" by supply this argument you can override that.
+* **\-n [name]** By default the script will generate directories and projects with the name "SharedSource" supply this argument to override it.
 
 *Notice:* The compilation of all the libraries on all the platforms my take an hour or more.
