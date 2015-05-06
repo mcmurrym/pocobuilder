@@ -4,16 +4,13 @@ echo Boot Strapping
 
 project_name="SharedSource" 
 
-# ios_project_path=""
-
-# while getopts i: opt; do
-# 	case $opt in
-# 		i)
-# 			ios_project_path=$OPTARG
-# 			echo $ios_project_path
-# 		;;
-# 	esac
-# done
+while getopts n: opt; do
+	case $opt in
+		n)
+			project_name=$OPTARG
+		;;
+	esac
+done
 
 ios_staging_name="iOSPocoLib"
 ios_staging=$project_name/$ios_staging_name
@@ -157,15 +154,6 @@ $lipo_job
 
 cp libPoco.a ../../../../$poco_ios_install_directory/lib/libPoco.a
 
-# cd ../../../../
-
-# if [ "${ios_project_path}" != "" ]; then
-# 	echo "Integrating into iOS project: $ios_project_path"
-
-# 	pwd
-# fi
-
-
 cd ../../../../
 
 #NDK needs to be defined
@@ -262,11 +250,10 @@ echo "######## builds done! Integrating into iOS and Android Projects"
 
 cd ..
 
-project_dir="sharedsource"
+project_dir=$project_name
 
 mkdir -p $project_dir/$project_dir
 
-# cd $project_dir
 
 echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
 

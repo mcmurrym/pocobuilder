@@ -65,8 +65,8 @@ LOCAL_STATIC_LIBRARIES += PocoNet
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE    := SharedSource
-LOCAL_SRC_FILES := $(shell (ruby $(LOCAL_PATH)/src_files_android_mk.rb))
+LOCAL_MODULE    := __ModuleName__
+LOCAL_SRC_FILES := $(shell (ruby $(LOCAL_PATH)/src_files_android_mk.rb __ModuleName__))
 LOCAL_C_INCLUDES := $(POCO_INCLUDE_PATH)
 LOCAL_LDLIBS := -llog
 LOCAL_SHARED_LIBRARIES := crypto ssl

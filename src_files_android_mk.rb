@@ -1,8 +1,10 @@
-compilation_files = Dir.entries("sharedsource")
+project_name = ARGV[0]
+
+compilation_files = Dir.entries(project_name)
 file_list = ""
 compilation_files.each { |file|
 	if file.include? ".c"
-		file_list += " sharedsource/" + file
+		file_list += " " + project_name + "/" + file
 	end
 }
 
