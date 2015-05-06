@@ -13,7 +13,11 @@ pocobuilder is a bash script that downloads and compiles the [Poco](http://pocop
 * $PATH needs to include a path to: ... /Android/sdk/tools
 
 ### Run script
-The build is not currently configurable.
-To run: run `sh pocoProjectSetup.sh` in the directory this repo was cloned or downloaded to.
+
+`sh pocoProjectSetup.sh`
+
+#### Options
+
+* -n [name] By default the script will generate directories and projects with the name "SharedSource" by supply this argument you can override that.
 
 *Notice:* The compilation of all the libraries on all the platforms my take an hour or more.
