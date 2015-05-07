@@ -1,13 +1,18 @@
 #!/bin/bash
 
 echo Boot Strapping
-
+build_anyway=false
+poco_always_build=""
 project_name="SharedSource" 
 
-while getopts n: opt; do
+while getopts n:a opt; do
 	case $opt in
 		n)
 			project_name=$OPTARG
+		;;
+		a)
+			build_anyway=true
+			poco_always_build="-B"
 		;;
 	esac
 done
@@ -25,18 +30,24 @@ ios_openssl_install_directory=$ios_staging/openssl
 
 echo "################################ iOS ssl START."
 
-git clone https://github.com/x2on/OpenSSL-for-iPhone.git $ios_openssl_directory
+libs_exist="$(ls -A $ios_openssl_directory/lib/)"
 
-cd $ios_openssl_directory
+if [ $libs_exists ] || [ "$build_anyway" = true ];  then
+	git clone https://github.com/x2on/OpenSSL-for-iPhone.git $ios_openssl_directory
 
-echo "Building ssl for iOS"
-./build-libssl.sh
+	cd $ios_openssl_directory
 
-cd ..
+	echo "Building ssl for iOS"
+	./build-libssl.sh
 
-mkdir ../$ios_openssl_install_directory
-cp -r $ios_openssl_directory/include/ ../$ios_openssl_install_directory/include
-cp -r $ios_openssl_directory/lib/ ../$ios_openssl_install_directory/lib
+	cd ..
+
+	mkdir ../$ios_openssl_install_directory
+	cp -r $ios_openssl_directory/include/ ../$ios_openssl_install_directory/include
+	cp -r $ios_openssl_directory/lib/ ../$ios_openssl_install_directory/lib
+else
+	echo "iOS openssl already built"
+fi
 
 echo "################################ iOS ssl DONE."
 
@@ -45,7 +56,6 @@ echo "Cloning Poco"
 poco_ios_install_directory=$ios_staging/poco
 poco_prefix=$poco_ios_staging$poco_ios_install_directory
 poco_dir=poco
-poco_always_build=""
 poco_cores="-j8"
 poco_omit_list=Data/ODBC,Data/MySQL,Zip,PDF,MongoDB,CppParser,XML
 
@@ -150,30 +160,37 @@ android_openssl_install_directory=$android_staging/openssl
 
 echo "################################ Android ssl START."
 
-git clone https://github.com/Metaswitch/openssl-android.git $android_openssl_directory
+libs_exist="$(ls -A $android_openssl_directory/libs/)"
 
-cd $android_openssl_directory
+if [ $libs_exists ] || [ "$build_anyway" = true ];  then
 
-git remote add upstream https://android.googlesource.com/platform/external/openssl.git
+	git clone https://github.com/Metaswitch/openssl-android.git $android_openssl_directory
 
-git fetch upstream                       # Get newest code from Android, but don't merge)
-git checkout dev                         # Checkout the dev branch
-git merge upstream/kitkat-mr2.2-release  # Merge the latest Android release into this branch)
-git push origin master                   # Push the updated merge
+	cd $android_openssl_directory
 
-echo "Building ssl for Android"
+	git remote add upstream https://android.googlesource.com/platform/external/openssl.git
 
-cd jni
-sed -i -e '1s/4.4.3/4.9/' Application.mk
-cd ..
+	git fetch upstream                       # Get newest code from Android, but don't merge)
+	git checkout dev                         # Checkout the dev branch
+	git merge upstream/kitkat-mr2.2-release  # Merge the latest Android release into this branch)
+	git push origin master                   # Push the updated merge
 
-ndk-build
+	echo "Building ssl for Android"
 
-cd ..
+	cd jni
+	sed -i -e '1s/4.4.3/4.9/' Application.mk
+	cd ..
 
-mkdir ../$android_openssl_install_directory
-cp -r $android_openssl_directory/include/ ../$android_openssl_install_directory/include
-cp -r $android_openssl_directory/libs/ ../$android_openssl_install_directory/libs
+	ndk-build
+
+	cd ..
+
+	mkdir ../$android_openssl_install_directory
+	cp -r $android_openssl_directory/include/ ../$android_openssl_install_directory/include
+	cp -r $android_openssl_directory/libs/ ../$android_openssl_install_directory/libs
+else
+	echo "Android openssl already built"
+fi
 
 
 echo "################################ Android ssl DONE."
@@ -181,8 +198,14 @@ echo "################################ Android ssl DONE."
 x86_toolchain=android-15-toolchain-x86
 arm_toolchain=android-15-toolchain-arm
 
-$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$x86_toolchain --toolchain=x86-4.8
-$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$arm_toolchain --toolchain=arm-linux-androideabi-4.8
+toolchain_exist="$(ls -A $x86_toolchain)"
+
+if [ $toolchain_exist ] || [ "$build_anyway" = true ];  then
+	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$x86_toolchain --toolchain=x86-4.8
+	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$arm_toolchain --toolchain=arm-linux-androideabi-4.8
+else
+	echo "Toolchains already deployed"
+fi
 
 x86_path=`pwd`/${x86_toolchain}
 arm_path=`pwd`/${arm_toolchain}
