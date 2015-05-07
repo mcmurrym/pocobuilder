@@ -24,9 +24,11 @@ if !Dir.exist?(jni_path)
 	Dir.mkdir(jni_path)
 end
 
-FileUtils.cp("_Android.mk", jni_path + "/Android.mk")
-FileUtils.cp("_Application.mk", jni_path + "/Application.mk")
-FileUtils.cp("src_files_android_mk.rb", jni_path + "/src_files_android_mk.rb")
+resource_path = "Resources/Android/"
+
+FileUtils.cp(resource_path + "_Android.mk", jni_path + "/Android.mk")
+FileUtils.cp(resource_path + "_Application.mk", jni_path + "/Application.mk")
+FileUtils.cp(resource_path + "src_files_android_mk.rb", jni_path + "/src_files_android_mk.rb")
 
 android_mk_file_path = jni_path + "/Android.mk"
 
