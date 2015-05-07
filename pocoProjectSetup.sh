@@ -99,60 +99,37 @@ lib_list=(libPocoCrypto.a libPocoData.a libPocoDataSQLite.a libPocoFoundation.a 
 	#arch
 		#liblist
 
-for ((j=0; j < ${#ios_configurations[@]}; j++))
+for i in "${lib_list[@]}"
 	do
-		libtool_job_prefix="libtool -static"
-		
-		declare -a archs_array
-		declare -a sub_path
+		lipo_job="lipo -c"
 
-		if [ $j = 0 ]; then
-			sub_path="../iPhoneOS"
-			archs_array=("${iphone[@]}")
-		else
-			sub_path="../iPhoneSimulator"
-			archs_array=("${ios_simulator[@]}")
-		fi
-
-		for k in "${archs_array[@]}"
+		for ((j=0; j < ${#ios_configurations[@]}; j++))
 			do
-				libtool_job=$libtool_job_prefix
-				for i in "${lib_list[@]}"
+				configuration=${ios_configurations[$j]}
+				
+				declare -a archs_array
+				declare -a sub_path
+
+				if [ $j = 0 ]; then
+					sub_path="../iPhoneOS"
+					archs_array=("${iphone[@]}")
+				else
+					sub_path="../iPhoneSimulator"
+					archs_array=("${ios_simulator[@]}")
+				fi
+
+				for k in "${archs_array[@]}"
 					do
-					
-						lib_path="${sub_path}/${k}/${i}"
-						libtool_job="${libtool_job} ${lib_path}"
-
+						full_path="$sub_path/$k/$i"
+						lipo_job="$lipo_job $full_path"
 					done
-
-				libtool_job="${libtool_job} -o ${k}_libCombined.a"
-
-				$libtool_job
 			done
 
+		lipo_job="$lipo_job -o $i"
+		$lipo_job
 	done
 
-lipo_job="lipo -c"
-for ((j=0; j < ${#ios_configurations[@]}; j++))
-	do
-		declare -a archs_array
-		if [ $j = 0 ]; then
-			archs_array=("${iphone[@]}")
-		else
-			archs_array=("${ios_simulator[@]}")
-		fi
-
-		for k in "${archs_array[@]}"
-			do
-				lipo_job="${lipo_job} ${k}_libCombined.a"
-			done
-
-	done
-
-lipo_job="${lipo_job} -o libPoco.a"
-$lipo_job
-
-cp libPoco.a ../../../../$poco_ios_install_directory/lib/libPoco.a
+cp * ../../../../$poco_ios_install_directory/lib
 
 cd ../../../../
 
