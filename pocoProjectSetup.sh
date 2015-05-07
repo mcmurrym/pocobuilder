@@ -32,22 +32,22 @@ echo "################################ iOS ssl START."
 
 libs_exist="$(ls -A $ios_openssl_directory/lib/)"
 
-if [ $libs_exists ] || [ "$build_anyway" = true ];  then
-	git clone https://github.com/x2on/OpenSSL-for-iPhone.git $ios_openssl_directory
+git clone https://github.com/x2on/OpenSSL-for-iPhone.git $ios_openssl_directory
 
-	cd $ios_openssl_directory
+cd $ios_openssl_directory
 
+if [ $libs_exists ] || [ "$build_anyway" = true ]; then
 	echo "Building ssl for iOS"
 	./build-libssl.sh
-
-	cd ..
-
-	mkdir ../$ios_openssl_install_directory
-	cp -r $ios_openssl_directory/include/ ../$ios_openssl_install_directory/include
-	cp -r $ios_openssl_directory/lib/ ../$ios_openssl_install_directory/lib
 else
 	echo "iOS openssl already built"
 fi
+
+cd ..
+
+mkdir ../$ios_openssl_install_directory
+cp -r $ios_openssl_directory/include/ ../$ios_openssl_install_directory/include
+cp -r $ios_openssl_directory/lib/ ../$ios_openssl_install_directory/lib
 
 echo "################################ iOS ssl DONE."
 
@@ -162,19 +162,18 @@ echo "################################ Android ssl START."
 
 libs_exist="$(ls -A $android_openssl_directory/libs/)"
 
-if [ $libs_exists ] || [ "$build_anyway" = true ];  then
+git clone https://github.com/Metaswitch/openssl-android.git $android_openssl_directory
 
-	git clone https://github.com/Metaswitch/openssl-android.git $android_openssl_directory
+cd $android_openssl_directory
 
-	cd $android_openssl_directory
+git remote add upstream https://android.googlesource.com/platform/external/openssl.git
 
-	git remote add upstream https://android.googlesource.com/platform/external/openssl.git
+git fetch upstream                       # Get newest code from Android, but don't merge)
+git checkout dev                         # Checkout the dev branch
+git merge upstream/kitkat-mr2.2-release  # Merge the latest Android release into this branch)
+git push origin master                   # Push the updated merge
 
-	git fetch upstream                       # Get newest code from Android, but don't merge)
-	git checkout dev                         # Checkout the dev branch
-	git merge upstream/kitkat-mr2.2-release  # Merge the latest Android release into this branch)
-	git push origin master                   # Push the updated merge
-
+if [ $libs_exists ] || [ "$build_anyway" = true ]; then
 	echo "Building ssl for Android"
 
 	cd jni
@@ -182,15 +181,15 @@ if [ $libs_exists ] || [ "$build_anyway" = true ];  then
 	cd ..
 
 	ndk-build
-
-	cd ..
-
-	mkdir ../$android_openssl_install_directory
-	cp -r $android_openssl_directory/include/ ../$android_openssl_install_directory/include
-	cp -r $android_openssl_directory/libs/ ../$android_openssl_install_directory/libs
 else
 	echo "Android openssl already built"
 fi
+
+cd ..
+
+mkdir ../$android_openssl_install_directory
+cp -r $android_openssl_directory/include/ ../$android_openssl_install_directory/include
+cp -r $android_openssl_directory/libs/ ../$android_openssl_install_directory/libs
 
 
 echo "################################ Android ssl DONE."
@@ -200,7 +199,7 @@ arm_toolchain=android-15-toolchain-arm
 
 toolchain_exist="$(ls -A $x86_toolchain)"
 
-if [ $toolchain_exist ] || [ "$build_anyway" = true ];  then
+if [[ ! "$toolchain_exist" ]] || [ "$build_anyway" = true ]; then
 	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$x86_toolchain --toolchain=x86-4.8
 	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-15 --install-dir=$arm_toolchain --toolchain=arm-linux-androideabi-4.8
 else
