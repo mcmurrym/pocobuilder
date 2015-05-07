@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo Verifying dependencies
+command -v ruby >/dev/null 2>&1 || { echo >&2 "ruby is required but it's not installed.  Aborting."; exit 1; }
+command -v xcodeproj >/dev/null 2>&1 || { echo >&2 "xcodeproj is required but it's not installed.  Aborting."; exit 1; }
+command -v android >/dev/null 2>&1 || { echo >&2 "android is required but it's not installed.  Aborting."; exit 1; }
+command -v ndk-build >/dev/null 2>&1 || { echo >&2 "ndk-build is required but it's not installed.  Aborting."; exit 1; }
+
 echo Boot Strapping
 build_anyway=false
 poco_always_build=""
