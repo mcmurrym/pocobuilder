@@ -5,7 +5,7 @@ pocobuilder is a bash script that downloads and compiles the [Poco](http://pocop
 
 ### Requirements: (except for Mac and Xcode this list is validated by the script)
 * [A Mac](http://store.apple.com/us/mac) (This may run on other platforms, but it is untested.)
-* [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) (I' not sure if the ruby gem Xcodeproj relies on xcode; this may not be a requirement for the build script)
+* [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) (I'm not sure if the ruby gem Xcodeproj relies on xcode; this may not be a requirement for the build script)
 * [Ruby](https://www.ruby-lang.org/en/downloads/) (If you are on a mac this should already be installed)
 * [Rubg gem XcodeProj](https://github.com/CocoaPods/Xcodeproj)
 * [Android NDK](https://developer.android.com/tools/sdk/ndk/)
