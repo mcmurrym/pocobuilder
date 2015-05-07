@@ -253,6 +253,7 @@ project_dir=$project_name
 
 mkdir -p $project_dir/$project_dir
 
+touch $project_dir/$project_dir/$project_name.h
 
 echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
 

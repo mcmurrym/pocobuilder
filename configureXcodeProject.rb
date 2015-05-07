@@ -6,7 +6,7 @@ libs_dir = ARGV[1]
 libs_path = project_name + "/" + libs_dir
 
 proj = Xcodeproj::Project.new(project_name + "/" + project_name + ".xcodeproj")
-proj.new_group(project_name)
+src_group = proj.new_group(project_name)
 main_group = proj.new_group("Libraries")
 
 #ssl groups
@@ -49,18 +49,19 @@ configurations.each { |config|
 proj.save()
 
 #this function adds the headers to the project
-def add_headers(directory, relative_directory, group, app_target)
+def add_headers(directory, relative_directory, group, app_target, make_public)
 	header_files = Dir.entries(directory)
-
 	header_files.each { |file|
 		if !file.include? ".c"
 			if file.include? ".h"
 				h_ref = group.new_file(relative_directory + file)
-				# build_file_ref = app_target.headers_build_phase().add_file_reference(h_ref, true)
-				# build_file_ref.settings = { "ATTRIBUTES" => ["Public"] }
+				if make_public
+					build_file_ref = app_target.headers_build_phase().add_file_reference(h_ref, true)
+					build_file_ref.settings = { "ATTRIBUTES" => ["Public"] }
+				end
 			elsif file != "." && file != ".."
 				a_header_group = group.new_group(file)
-				add_headers(directory + "/" + file, relative_directory + "/" + file + "/", a_header_group, app_target)
+				add_headers(directory + "/" + file, relative_directory + "/" + file + "/", a_header_group, app_target, make_public)
 			end
 		end
 	}
@@ -76,15 +77,17 @@ def add_files(frameworks_build_phase, files, lib_group, relative_source_director
 	}
 end
 
+add_headers(project_name + "/" + project_name + "/", project_name + "/", src_group, app_target, true)
+
 #h files
-add_headers(libs_path + "/poco/include/Poco/", libs_dir + "/poco/include/Poco/",poco_include_group, app_target)
+add_headers(libs_path + "/poco/include/Poco/", libs_dir + "/poco/include/Poco/",poco_include_group, app_target, false)
 
 poco_a_files = Dir.entries(libs_path + "/poco/lib")
 
 add_files(frameworks_build_phase, poco_a_files, poco_lib_group, libs_dir + "/poco/lib/")
 
 #a files
-add_headers(libs_path + "/openssl/include/openssl/", libs_dir + "/openssl/include/openssl/", ssl_include_group, app_target)
+add_headers(libs_path + "/openssl/include/openssl/", libs_dir + "/openssl/include/openssl/", ssl_include_group, app_target, false)
 
 ssl_a_files = Dir.entries(libs_path + "/openssl/lib")
 
