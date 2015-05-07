@@ -36,10 +36,14 @@ text = File.read(android_mk_file_path)
 new_contents = text.gsub("__ModuleName__", project_name)
 File.open(android_mk_file_path, "w") {|file| file.puts new_contents }
 
-link_poco_dir = "ln -s ../../" + libs_dir + "/poco " + jni_path + "/poco"
-link_openssl_dir = "ln -s ../../" + libs_dir + "/openssl " + jni_path + "/openssl"
-link_shared_src = "ln -s ../../" + project_name + " " + jni_path + "/" + project_name
+poco_dir = jni_path + "/poco"
 
-system(link_poco_dir)
-system(link_openssl_dir)
-system(link_shared_src)
+if !Dir.exist?(poco_dir) 
+	link_poco_dir = "ln -s ../../" + libs_dir + "/poco " + jni_path + "/poco"
+	link_openssl_dir = "ln -s ../../" + libs_dir + "/openssl " + jni_path + "/openssl"
+	link_shared_src = "ln -s ../../" + project_name + " " + jni_path + "/" + project_name
+
+	system(link_poco_dir)
+	system(link_openssl_dir)
+	system(link_shared_src)
+end
