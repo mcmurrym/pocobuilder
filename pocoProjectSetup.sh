@@ -262,6 +262,8 @@ mkdir -p $project_dir/$project_dir
 
 touch $project_dir/$project_dir/$project_name.h
 
+cp Resources/Log.h $project_dir/$project_dir/Log.h
+
 echo "Creating/Updating an xcode project with the latest Poco and openssl libraries"
 
 ruby configureXcodeProject.rb $project_name $ios_staging_name
